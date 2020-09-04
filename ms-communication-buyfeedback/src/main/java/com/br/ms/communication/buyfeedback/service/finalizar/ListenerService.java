@@ -7,9 +7,8 @@ import com.br.ms.communication.buyfeedback.gateway.json.CompraFinalizadaJson;
 import com.br.ms.communication.buyfeedback.gateway.repository.CompraRedisRepository;
 import com.google.gson.Gson;
 
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 
@@ -20,15 +19,17 @@ public class ListenerService {
 	@Autowired
 	private CompraRedisRepository compraRedisRepository;
 	
+	
 	@Autowired
 	private Gson gson;
 	
-	@RabbitListener(queues="${fila.finalizado}")
-    public void onMessage(Message message) throws IOException  {
+
+	@KafkaListener(topics = "${fila.finalizado}", groupId = "group_id")
+    public void onMessage(String message) throws IOException  {
 		
-		String json = new String(message.getBody(), "UTF-8");
+		String json = message;
 		
-		System.out.println("Mensagem recebida:"+json);
+		System.out.println("Mensagem recebida:" + json);
 		
 		CompraFinalizadaJson compraChaveJson = gson.fromJson(json, CompraFinalizadaJson.class);
 
